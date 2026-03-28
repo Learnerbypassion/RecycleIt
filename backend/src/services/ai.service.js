@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: "AIzaSyB6wwY2eUnDROkJHa0e3JoFWfe6Mtd6W_c" });
+const ai = new GoogleGenAI({ apiKey: "AIzaSyDRWFIjF2mJnPvNi4IsEv5cwVWjdczWD7Q" });
 
 async function getResponse(prompt) {
   const response = await ai.models.generateContent({
@@ -14,29 +14,10 @@ Rules: CO₂ Evaluation Mode
 * Task:
   Estimate the amount of CO₂ saved based on the given waste weight using a reasonable and consistent conversion logic.
 
-* Output Format (Updated):
-  The response must contain:
-
-  1. A single numeric value (CO₂ saved)
-  2. A very short analysis or insight based on that value
-
-* Output Constraints:
-
-  * The number must come first
-  * Followed by a brief, clear insight (1 short sentence only)
-  * No unnecessary explanation or long text
-  * Keep it concise and meaningful
-
-* Input Handling:
-  If the weight is provided, compute directly.
-  If the weight is unclear or missing, infer reasonably if possible.
-
-* Consistency:
-  Use a consistent estimation approach across all responses.
-
-* Examples:
-  Input: "10 kg food waste" → Output: 25 Significant reduction in landfill emissions
-  Input: "50kg organic waste" → Output: 120 High positive environmental impact
+*and analysing the image you should give a 1 line analysis by analysing the image care fully
+*and keep it brief and you can start like "You know you've saved ...."
+*you may write what are the adverse effects if they are not taken away
+*and how it helps the naturte and controll the pollution
 
 The response should always start with the number followed by a short insight.
 

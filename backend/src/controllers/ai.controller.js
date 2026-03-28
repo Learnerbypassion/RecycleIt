@@ -15,7 +15,7 @@ const getAnalysis = async (req, res) => {
     const weight = pickup.waste.quantity || 0;
     const type = pickup.waste.type;
     const prompt = `
-${weight} kg ${type} waste
+${weight} kg ${type} waste ${pickup.waste.image}
 `;
 
     const result = await aiService.getResponse(prompt);
