@@ -1,12 +1,22 @@
-import { NavLink } from 'react-router-dom';
-import { HiOutlineBell } from 'react-icons/hi';
-
-const tabs = [
-  { to: '/dashboard', label: 'Home' },
-  { to: '/impact', label: 'Impact' },
-];
+import { NavLink, useNavigate } from 'react-router-dom';
+import { HiOutlineLogout } from 'react-icons/hi';
 
 export default function Navbar() {
+  const navigate = useNavigate();
+  const role = localStorage.getItem('role') || 'user';
+
+  const tabs = [
+    { to: '/dashboard', label: 'Home' },
+    ...(role === 'user' ? [{ to: '/report', label: 'Report Waste' }] : []),
+    { to: '/impact', label: 'Impact' },
+  ];
+
+  const handleLogout = () => {
+    localStorage.removeItem('role');
+    localStorage.removeItem('collectorId');
+    navigate('/');
+  };
+
   return (
     <header className="h-[60px] bg-white border-b border-gray-100 flex items-center justify-between px-8 sticky top-0 z-20">
       {/* Left — Logo + Title + Tabs */}
@@ -22,6 +32,9 @@ export default function Navbar() {
             <h1 className="text-[15px] font-bold text-gray-900 leading-tight">RecycleIt</h1>
             <p className="text-[9px] font-medium text-gray-400 uppercase tracking-widest">The Living Ledger</p>
           </div>
+          <span className="ml-2 px-2 py-0.5 text-[10px] uppercase tracking-wider font-bold bg-gray-100 text-gray-600 rounded-md border border-gray-200">
+            {role} mode
+          </span>
         </div>
 
         <div className="w-px h-7 bg-gray-200" />
@@ -47,11 +60,11 @@ export default function Navbar() {
         </nav>
       </div>
 
-      {/* Right — Notification only */}
-      <div className="flex items-center">
-        <button className="relative p-2 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors duration-200">
-          <HiOutlineBell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary-500 rounded-full ring-2 ring-white" />
+      {/* Right — Logout */}
+      <div className="flex items-center gap-4">
+        <button onClick={handleLogout} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer">
+          <HiOutlineLogout className="w-4 h-4" />
+          Exit
         </button>
       </div>
     </header>

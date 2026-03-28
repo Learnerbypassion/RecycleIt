@@ -5,15 +5,18 @@ import './index.css';
 
 import DashboardLayout from './components/DashboardLayout';
 import DashboardHome from './pages/DashboardHome';
+import ReportWaste from './pages/ReportWaste';
+import LandingPage from './pages/LandingPage';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/" element={<LandingPage />} />
 
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardHome />} />
+          <Route path="/report" element={<ReportWaste />} />
         </Route>
 
         {/* Fallback */}
