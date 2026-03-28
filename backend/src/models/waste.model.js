@@ -25,13 +25,15 @@ const wasteSchema = new mongoose.Schema(
         "electronic",// Electronic waste
         "hazardous",// Glass waste
         "paper",// Hazardous waste
-        "other"//Metal waste
+        "Metal waste"//Metal waste
         // cattle waste
       ],
     },
     
-    // add one more feature about the purity of waste, whether it is pure, contaminated, mixed
     description: {
+      type: String,
+    },
+    quantity:{
       type: String,
     },
 

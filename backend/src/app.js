@@ -3,9 +3,13 @@ import dotenv from "dotenv"
 import wasteRoutes from "./routes/waste.routes.js"
 import collectorRoutes from "./routes/collector.routes.js"
 import pickupRoutes from "./routes/pickup.routes.js"
+import cors from "cors"
+
 dotenv.config()
 const app = express()
+app.use(cors())
 app.use(express.json())
+
 app.use('/api/waste', wasteRoutes)
 app.use('/api/collector', collectorRoutes)
 app.use('/api/pickup', pickupRoutes)
