@@ -1,12 +1,14 @@
-import Pickup from "../models/Pickup.js";
+import Pickup from "../models/pickup.model.js";
 import aiService from "../services/ai.service.js";
 
 const getAnalysis = async (req, res) => {
   try {
     const { pickupId } = req.params;
-
+    console.log(pickupId);
+    
     const pickup = await Pickup.findById(pickupId).populate("waste");
-
+    console.log(pickup);
+    
     if (!pickup || !pickup.waste) {
       return res.status(404).json({ message: "Pickup or waste not found" });
     }
