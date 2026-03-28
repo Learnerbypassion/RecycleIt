@@ -143,7 +143,7 @@ export default function ReportWaste() {
         </div>
         <div className="md:col-span-2">
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Google Map Link</label>
-              <input type="email" name="email" value={formData.location} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="Map Link" />
+              <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="Map Link" />
             </div>
 
         <div className="mt-4">
