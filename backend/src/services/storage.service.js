@@ -6,7 +6,7 @@ const ImageKitClient = new ImageKit({
   privateKey: process.env.IMAGEKIT_PRIVATE_KEY || privateKey
 });
 
-const uploadProfilePic = async (file) => {
+const uploadImage = async (file) => {
   try {
     const result = await ImageKitClient.files.upload({
       file: file.toString("base64"),
@@ -18,4 +18,4 @@ const uploadProfilePic = async (file) => {
   }
 };
 
-export { uploadProfilePic };
+export default { uploadImage };

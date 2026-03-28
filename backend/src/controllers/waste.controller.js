@@ -1,5 +1,7 @@
 import Waste from "../models/waste.model.js";
 import Collector from "../models/collector.model.js";
+import storageService from "../services/storage.service.js";
+
 
 const addWaste = async (req, res) => {
   try {
@@ -141,9 +143,46 @@ const updateWasteStatus = async (req, res) => {
   }
 };
 
+const uploadImageController = async (req, res) => {
+  try {
+    const { wasteId } = req.params;
+
+    if (!req.file) {
+      return res.status(400).json({
+        message: "No file uploaded",
+      });
+    }
+
+    if (!wasteId) {
+      return res.status(400).json({
+        message: "wasteId is required",
+      });
+    }
+    const result = await storageService.uploadImage(req.file.buffer);
+    const updatedWaste = await Waste.findByIdAndUpdate(
+      wasteId,
+      { image: result.url },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      message: "Image uploaded successfully",
+      data: updatedWaste,
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Upload failed",
+    });
+  }
+};
+
+
 export default {
   addWaste,
   getAllWaste,
   getWasteById,
   updateWasteStatus,
+  uploadImageController
 };
