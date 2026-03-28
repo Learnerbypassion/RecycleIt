@@ -1,69 +1,53 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {
   HiOutlineFilter,
   HiOutlineLocationMarker,
   HiOutlineScale,
-} from "react-icons/hi";
+  HiOutlineArrowRight,
+} from 'react-icons/hi';
 
-import { useEffect, useState } from "react";
-import axios from "axios";
+const feedItems = [
+  {
+    id: 1,
+    title: 'Waste Food',
+    location: 'Sodepur Ground',
+    weight: '15kg',
+    urgent: false,
+    color: '#8B5E3C',
+    emoji: '🥕',
+  },
+  {
+    id: 2,
+    title: 'Rotten Crops',
+    location: 'Agarpara',
+    weight: '150 Kg',
+    urgent: true,
+    color: '#5C3A1E',
+    emoji: '🌿',
+  },
+  {
+    id: 3,
+    title: 'Kitchen Scraps',
+    location: 'Baranagar',
+    weight: '8kg',
+    urgent: false,
+    color: '#6B4226',
+    emoji: '🍌',
+  },
+  {
+    id: 4,
+    title: 'Garden Waste',
+    location: 'Dunlop',
+    weight: '45 Kg',
+    urgent: false,
+    color: '#3D5E3A',
+    emoji: '🌱',
+  },
+];
 
 export default function DashboardHome() {
-  const [wasteList, setWasteList] = useState([]);
-  const [collectors, setCollectors] = useState([]);
-
-  const [selectedWaste, setSelectedWaste] = useState(null);
-  const [selectedCollector, setSelectedCollector] = useState(null);
-
-  useEffect(() => {
-    fetchWaste();
-    fetchCollectors();
-  }, []);
-
-  // 🔥 Fetch waste
-  const fetchWaste = async () => {
-    try {
-      const res = await axios.get("http://localhost:3000/api/waste/all");
-      setWasteList(res.data.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // 🔥 Fetch collectors
-  const fetchCollectors = async () => {
-    try {
-      const res = await axios.get("http://localhost:3000/api/collector");
-      setCollectors(res.data.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // 🔥 Create pickup
-  const handleConnect = async () => {
-    if (!selectedWaste || !selectedCollector) {
-      alert("Select waste AND collector");
-      return;
-    }
-
-    try {
-      await axios.post("http://localhost:3000/api/pickup/create", {
-        collectorId: selectedCollector._id,
-        wasteId: selectedWaste._id,
-      });
-
-      alert("Pickup assigned");
-
-      fetchWaste(); // refresh
-      setSelectedWaste(null);
-      setSelectedCollector(null);
-
-    } catch (err) {
-      console.error(err);
-      alert("Error creating pickup");
-    }
-  };
-
   return (
     <div className="flex flex-col gap-6">
 
@@ -104,30 +88,55 @@ export default function DashboardHome() {
         </div>
       </section>
 
-      {/* ── Collectors ── */}
-      <section>
-        <h3 className="text-lg font-bold">Collectors</h3>
+      {/* ── Browse Feed (Vertical) ── */}
+      <section className="animate-slide-up" style={{ animationDelay: '200ms' }}>
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="text-lg font-bold text-gray-900">Browse Feed</h3>
+            <p className="text-sm text-gray-400 mt-0.5">Nearby collection opportunities</p>
+          </div>
+          <button className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 rounded-xl bg-white text-sm font-semibold text-gray-600 hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer">
+            <HiOutlineFilter className="w-4 h-4" />
+            Filters
+          </button>
+        </div>
 
-        <div className="flex flex-col gap-3 mt-3">
-          {collectors.map((c) => (
+        <div className="flex flex-col gap-3">
+          {feedItems.map((item) => (
             <div
-              key={c._id}
-              onClick={() => setSelectedCollector(c)}
-              className={`p-4 rounded-xl border cursor-pointer ${
-                selectedCollector?._id === c._id
-                  ? "bg-blue-100 border-blue-500"
-                  : "bg-white"
-              }`}
+              key={item.id}
+              className="flex items-center gap-4 bg-white rounded-2xl p-4 px-5 shadow-sm border border-gray-50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             >
-              <h4 className="font-bold">{c.name}</h4>
-
-              <p className="text-sm text-gray-500">
-                {c.location.area}, {c.location.town}
-              </p>
-
-              <p className="text-xs mt-1">
-                Accepts: {c.acceptedTypes.join(", ")}
-              </p>
+              {/* Thumb */}
+              <div
+                className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: item.color }}
+              >
+                <span className="text-2xl">{item.emoji}</span>
+              </div>
+              {/* Info */}
+              <div className="flex-1 min-w-0">
+                <span className="block text-sm font-bold text-gray-900">{item.title}</span>
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="flex items-center gap-1 text-xs text-gray-500 font-medium">
+                    <HiOutlineLocationMarker className="w-3.5 h-3.5" />
+                    {item.location}
+                  </span>
+                  <span className="flex items-center gap-1 text-xs text-gray-500 font-medium">
+                    <HiOutlineScale className="w-3.5 h-3.5" />
+                    {item.weight}
+                  </span>
+                </div>
+                {item.urgent && (
+                  <span className="inline-block mt-1.5 text-[0.6rem] font-extrabold tracking-wide text-white bg-red-500 px-2 py-0.5 rounded">
+                    URGENT+
+                  </span>
+                )}
+              </div>
+              {/* Connect */}
+              <button className="px-5 py-2 rounded-xl bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer shrink-0">
+                Connect
+              </button>
             </div>
           ))}
         </div>
