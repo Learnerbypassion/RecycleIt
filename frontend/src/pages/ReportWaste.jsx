@@ -44,9 +44,9 @@ export default function ReportWaste() {
         description: '', town: '', area: '', landmark: ''
       });
     } catch (error) {
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.message || 'Error submitting form. Please try again.' 
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Error submitting form. Please try again.'
       });
     } finally {
       setLoading(false);
@@ -61,7 +61,7 @@ export default function ReportWaste() {
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-8 flex flex-col gap-6">
-        
+
         {message && (
           <div className={`p-4 rounded-xl text-sm font-medium ${message.type === 'success' ? 'bg-primary-50 text-primary-700' : 'bg-red-50 text-red-600'}`}>
             {message.text}
@@ -77,15 +77,15 @@ export default function ReportWaste() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Full Name *</label>
-              <input required type="text" name="name" value={formData.name} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="John Doe" />
+              <input required type="text" name="name" value={formData.name} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="Soham" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Phone Number *</label>
-              <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="+91 9876543210" />
+              <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="+91 7524985043" />
             </div>
             <div className="md:col-span-2">
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Email Address (Optional)</label>
-              <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="john@example.com" />
+              <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="abc@gmail.com" />
             </div>
           </div>
         </div>
@@ -106,6 +106,10 @@ export default function ReportWaste() {
                   <option key={t.value} value={t.value}>{t.label}</option>
                 ))}
               </select>
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Waste Quantity (In KGS)</label>
+              <input type="number" name="number" value={formData.quantity} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="10" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Description (Optional)</label>
@@ -133,10 +137,14 @@ export default function ReportWaste() {
             </div>
             <div className="md:col-span-2">
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Landmark (Optional)</label>
-              <input type="text" name="landmark" value={formData.landmark} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="Near post office..." />
+              <input type="text" name="landmark" value={formData.landmark} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="Near GNIT College..." />
             </div>
           </div>
         </div>
+        <div className="md:col-span-2">
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Google Map Link</label>
+              <input type="email" name="email" value={formData.location} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="Map Link" />
+            </div>
 
         <div className="mt-4">
           <button disabled={loading} type="submit" className="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold rounded-xl shadow-[0_4px_12px_rgba(22,163,74,0.25)] hover:shadow-[0_6px_16px_rgba(22,163,74,0.35)] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-70 disabled:pointer-events-none">
