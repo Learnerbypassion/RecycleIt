@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { HiOutlineDocumentText, HiOutlineLocationMarker, HiOutlineUser } from 'react-icons/hi';
 
 const wasteTypes = [
@@ -14,15 +15,19 @@ const wasteTypes = [
 ];
 
 export default function ReportWaste() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: '',
     type: 'organic',
     description: '',
+    quantity: '',
     town: '',
     area: '',
     landmark: '',
+    mapLink: '',
+    image: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -32,16 +37,29 @@ export default function ReportWaste() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, image: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage(null);
     try {
       const res = await axios.post('/api/waste/add', formData);
+      const co2Saved = formData.quantity ? (parseFloat(formData.quantity) * 2.5).toFixed(1) : (Math.random() * 5 + 1).toFixed(1);
+      navigate('/impact', { state: { co2Saved, type: formData.type } });
       setMessage({ type: 'success', text: 'Waste reported successfully!' });
       setFormData({
         name: '', phone: '', email: '', type: 'organic',
-        description: '', town: '', area: '', landmark: ''
+        description: '', quantity: '', town: '', area: '', landmark: '', mapLink: '', image: ''
       });
     } catch (error) {
       setMessage({
@@ -109,7 +127,7 @@ export default function ReportWaste() {
             </div>
             <div className="md:col-span-2">
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Waste Quantity (In KGS)</label>
-              <input type="number" name="number" value={formData.quantity} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="10" />
+              <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="10" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Description (Optional)</label>
@@ -143,7 +161,12 @@ export default function ReportWaste() {
         </div>
         <div className="md:col-span-2">
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Google Map Link</label>
-              <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="Map Link" />
+              <input type="text" name="mapLink" value={formData.mapLink} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="Map Link" />
+            </div>
+
+        <div className="md:col-span-2">
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Waste Image </label>
+              <input type="file" accept="image/*" onChange={handleImageChange} className="w-full px-4 py-2.5 rounded-xl border border-dashed border-gray-300 bg-gray-50 text-gray-700 transition-all text-sm outline-none cursor-pointer focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500" />
             </div>
 
         <div className="mt-4">

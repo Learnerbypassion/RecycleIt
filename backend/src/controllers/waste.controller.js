@@ -1,5 +1,6 @@
 import Waste from "../models/waste.model.js";
 import Collector from "../models/collector.model.js";
+import { uploadProfilePic } from "../services/stoorage.service.js";
 
 const addWaste = async (req, res) => {
   try {
@@ -25,6 +26,18 @@ const addWaste = async (req, res) => {
       });
     }
 
+    let processedImage = image;
+    if (image && image.startsWith("data:image")) {
+      try {
+        const base64Data = image.split(";base64,")[1];
+        const uploadResult = await uploadProfilePic(base64Data);
+        processedImage = uploadResult.url;
+      } catch (err) {
+        console.warn("ImageKit upload failed:", err.message);
+        processedImage = ""; // Default empty if upload fails
+      }
+    }
+
     const waste = await Waste.create({
       name,
       phone,
@@ -36,7 +49,7 @@ const addWaste = async (req, res) => {
       area,
       landmark,
       mapLink,
-      image,
+      image: processedImage,
     });
 
     const matchedCollectors = await Collector.find({
