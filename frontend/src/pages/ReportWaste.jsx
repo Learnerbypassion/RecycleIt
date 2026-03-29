@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { HiOutlineDocumentText, HiOutlineLocationMarker, HiOutlineUser } from 'react-icons/hi';
 
 const wasteTypes = [
@@ -14,22 +15,97 @@ const wasteTypes = [
 ];
 
 export default function ReportWaste() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: '',
     type: 'organic',
     description: '',
+    quantity: '',
     town: '',
     area: '',
     landmark: '',
+    mapLink: '',
+    image: '',
   });
 
   const [loading, setLoading] = useState(false);
+  const [analyzingImage, setAnalyzingImage] = useState(false);
   const [message, setMessage] = useState(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width = Math.round((width * MAX_HEIGHT) / height);
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.7);
+          setFormData(prev => ({ ...prev, image: compressedBase64 }));
+          analyzeImage(compressedBase64);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const analyzeImage = async (base64Str) => {
+    setAnalyzingImage(true);
+    try {
+      const res = await axios.post('/api/ai/analyze-image', { image: base64Str });
+      if (res.data) {
+        setFormData(prev => ({
+          ...prev,
+          type: res.data.type ? res.data.type.toLowerCase() : prev.type,
+          quantity: res.data.quantity ? String(res.data.quantity) : prev.quantity
+        }));
+        setMessage({ type: 'success', text: 'Image analyzed successfully!' });
+      }
+    } catch (err) {
+      console.warn("AI parsing failed", err);
+      setMessage({ type: 'error', text: 'Could not automatically analyze image.' });
+    } finally {
+      setAnalyzingImage(false);
+    }
+  };
+
+  const submitWithForce = async (forceObj) => {
+    await axios.post('/api/waste/add', forceObj);
+
+    if (forceObj.email) {
+      localStorage.setItem('userEmail', forceObj.email);
+    }
+
+    navigate('/impact');
   };
 
   const handleSubmit = async (e) => {
@@ -37,17 +113,9 @@ export default function ReportWaste() {
     setLoading(true);
     setMessage(null);
     try {
-      const res = await axios.post('/api/waste/add', formData);
-      setMessage({ type: 'success', text: 'Waste reported successfully!' });
-      setFormData({
-        name: '', phone: '', email: '', type: 'organic',
-        description: '', town: '', area: '', landmark: ''
-      });
+      await submitWithForce(formData);
     } catch (error) {
-      setMessage({
-        type: 'error',
-        text: error.response?.data?.message || 'Error submitting form. Please try again.'
-      });
+      setMessage({ type: 'error', text: error.response?.data?.message || 'Error submitting form. Please try again.' });
     } finally {
       setLoading(false);
     }
@@ -84,8 +152,8 @@ export default function ReportWaste() {
               <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="+91 7524985043" />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Email Address (Optional)</label>
-              <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="abc@gmail.com" />
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Email Address *</label>
+              <input required type="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="abc@gmail.com" />
             </div>
           </div>
         </div>
@@ -99,6 +167,11 @@ export default function ReportWaste() {
             Waste Details
           </h3>
           <div className="grid grid-cols-1 gap-4">
+            <div className="md:col-span-2">
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Waste Image</label>
+              <input disabled={analyzingImage} type="file" accept="image/*" onChange={handleImageChange} className="w-full px-4 py-2.5 rounded-xl border border-dashed border-gray-300 bg-gray-50 text-gray-700 transition-all text-sm outline-none cursor-pointer focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 disabled:opacity-50" />
+              {analyzingImage && <p className="text-xs text-primary-600 mt-2 font-bold animate-pulse">Analyzing image...</p>}
+            </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Waste Type *</label>
               <select required name="type" value={formData.type} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none appearance-none">
@@ -109,7 +182,7 @@ export default function ReportWaste() {
             </div>
             <div className="md:col-span-2">
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Waste Quantity (In KGS)</label>
-              <input type="number" name="number" value={formData.quantity} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="10" />
+              <input type="number" name="quantity" value={formData.quantity} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="10" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Description (Optional)</label>
@@ -139,12 +212,13 @@ export default function ReportWaste() {
               <label className="block text-xs font-semibold text-gray-600 mb-1.5">Landmark (Optional)</label>
               <input type="text" name="landmark" value={formData.landmark} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="Near GNIT College..." />
             </div>
+            
+            <div className="md:col-span-2">
+              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Google Map Link</label>
+              <input type="text" name="mapLink" value={formData.mapLink} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="Map Link" />
+            </div>
           </div>
         </div>
-        <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5">Google Map Link</label>
-              <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm outline-none" placeholder="Map Link" />
-            </div>
 
         <div className="mt-4">
           <button disabled={loading} type="submit" className="w-full py-3 px-4 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold rounded-xl shadow-[0_4px_12px_rgba(22,163,74,0.25)] hover:shadow-[0_6px_16px_rgba(22,163,74,0.35)] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-70 disabled:pointer-events-none">

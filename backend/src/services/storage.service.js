@@ -3,7 +3,9 @@ import ImageKit from "@imagekit/nodejs";
 const privateKey = "private_RaBd9WErikfcnn9+ud/4TwZKRu8=";
 
 const ImageKitClient = new ImageKit({
-  privateKey: process.env.IMAGEKIT_PRIVATE_KEY || privateKey
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY || "public_dummy123",
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY || privateKey,
+  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT || "https://ik.imagekit.io/dummyEndpoint/"
 });
 
 const uploadImage = async (file) => {

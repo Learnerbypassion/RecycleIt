@@ -20,7 +20,7 @@ const sendEmail = async ({ to, subject, html }) => {
     `To: ${to}`,
     "Content-Type: text/html; charset=utf-8",
     "MIME-Version: 1.0",
-    `Subject: subject`,
+    `Subject: ${subject}`,
     "",
     html,
   ];
