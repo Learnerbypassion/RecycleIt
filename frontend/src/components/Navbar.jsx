@@ -8,7 +8,8 @@ export default function Navbar() {
   const tabs = [
     { to: '/dashboard', label: 'Home' },
     ...(role === 'user' ? [{ to: '/report', label: 'Report Waste' }] : []),
-    { to: '/impact', label: 'Impact' },
+    ...(role === 'user' ? [{ to: '/my-reports', label: 'My Reports' }] : []),
+    ...(role === 'user' ? [{ to: '/impact', label: 'Impact' }] : [{ to: '/history', label: 'History' }]),
   ];
 
   const handleLogout = () => {

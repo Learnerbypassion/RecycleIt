@@ -6,7 +6,8 @@ const router = express.Router()
 
 router.post('/add', wasteController.addWaste );
 router.get('/all', wasteController.getAllWaste);
+router.get('/user/:email', wasteController.getWasteByUser);
 router.get('/:id', wasteController.getWasteById);
-router.put('/:id', wasteController.updateWasteStatus)
+router.put('/:id', wasteController.updateWasteStatus);
 
 export default router;

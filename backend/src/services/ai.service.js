@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: "AIzaSyDRWFIjF2mJnPvNi4IsEv5cwVWjdczWD7Q" });
+const ai = new GoogleGenAI({ apiKey: "AIzaSyBJEgT33Qpgt8W5uGRGfPVHmpexetBMmPs" });
 
 async function getResponse(prompt) {
   const response = await ai.models.generateContent({
@@ -48,4 +48,31 @@ ${prompt}
   return response.text;
 }
 
-export default { getResponse };
+async function analyzeWasteImage(base64ImageStr) {
+  try {
+    const base64Data = base64ImageStr.replace(/^data:image\/\w+;base64,/, "");
+    const prompt = `You are a waste categorization AI.
+Identify the primary waste material in this image.
+You MUST output EXACTLY and ONLY valid JSON matching this schema:
+{
+  "type": "organic" | "plastic" | "metal" | "glass" | "paper" | "electronic" | "hazardous" | "other",
+  "quantity": number
+}
+Example: {"type": "plastic", "quantity": 1.5}
+Do not use markdown code blocks. Just output raw JSON.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3-flash-preview",
+      contents: [
+        prompt,
+        { inlineData: { data: base64Data, mimeType: "image/jpeg" } }
+      ]
+    });
+    return response.text;
+  } catch (error) {
+    console.error("Vision AI Error:", error);
+    throw error;
+  }
+}
+
+export default { getResponse, analyzeWasteImage };

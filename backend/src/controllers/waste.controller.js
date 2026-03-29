@@ -17,7 +17,8 @@ const addWaste = async (req, res) => {
       area,
       landmark,
       mapLink,
-      image
+      image,
+      force
     } = req.body;
 
     if (!name || !phone || !type || !town || !area) {
@@ -25,6 +26,14 @@ const addWaste = async (req, res) => {
         message: "Please fill all required fields",
       });
     }
+
+    const matchedCollectors = await Collector.find({
+      acceptedTypes: { $in: [(type || "").toLowerCase()] },
+      "location.town": { $regex: new RegExp(`^\\s*${town}\\s*$`, 'i') },
+      "location.area": { $regex: new RegExp(`^\\s*${area}\\s*$`, 'i') },
+    });
+    
+
 
     let processedImage = image;
     if (image && image.startsWith("data:image")) {
@@ -51,17 +60,6 @@ const addWaste = async (req, res) => {
       mapLink,
       image: processedImage,
     });
-
-    const matchedCollectors = await Collector.find({
-      acceptedTypes: { $in: [type] },
-      "location.town": town,
-      "location.area": area,
-    });
-    if(!matchedCollectors){
-        return res.status(400).json({
-            message:"Currently we dont have any collector "
-        })
-    }
 
     res.status(201).json({
       message: "Complaint registered successfully",
@@ -107,9 +105,9 @@ const getWasteById = async (req, res) => {
     const { type, town, area } = waste;
 
     const matchedCollectors = await Collector.find({
-      acceptedTypes: { in: [type.toLowerCase()] },
-      "location.town": town,
-      "location.area": area,
+      acceptedTypes: { $in: [(type || "").toLowerCase()] },
+      "location.town": { $regex: new RegExp(`^\\s*${town}\\s*$`, 'i') },
+      "location.area": { $regex: new RegExp(`^\\s*${area}\\s*$`, 'i') },
     });
 
     res.status(200).json({
@@ -154,9 +152,23 @@ const updateWasteStatus = async (req, res) => {
   }
 };
 
+const getWasteByUser = async (req, res) => {
+  try {
+    const { email } = req.params;
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+    const wastes = await Waste.find({ email }).sort({ createdAt: -1 });
+    res.status(200).json({ data: wastes });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching user waste", error: error.message });
+  }
+};
+
 export default {
   addWaste,
   getAllWaste,
   getWasteById,
   updateWasteStatus,
+  getWasteByUser,
 };

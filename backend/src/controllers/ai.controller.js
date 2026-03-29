@@ -1,21 +1,15 @@
-import Pickup from "../models/pickup.model.js";
 import aiService from "../services/ai.service.js";
 
 const getAnalysis = async (req, res) => {
   try {
-    const { pickupId } = req.params;
-    console.log(pickupId);
+    const { weight, type } = req.body;
     
-    const pickup = await Pickup.findById(pickupId).populate("waste");
-    console.log(pickup);
-    
-    if (!pickup || !pickup.waste) {
-      return res.status(404).json({ message: "Pickup or waste not found" });
+    if (!type) {
+      return res.status(400).json({ message: "Waste type is required" });
     }
-    const weight = pickup.waste.quantity || 0;
-    const type = pickup.waste.type;
+
     const prompt = `
-${weight} kg ${type} waste
+${weight || 0} kg ${type} waste
 `;
 
     const result = await aiService.getResponse(prompt);
@@ -30,4 +24,25 @@ ${weight} kg ${type} waste
   }
 };
 
-export default { getAnalysis };
+const analyzeImageController = async (req, res) => {
+  try {
+    const { image } = req.body;
+    if (!image) {
+      return res.status(400).json({ message: "Image is required" });
+    }
+    const resultText = await aiService.analyzeWasteImage(image);
+    
+    const match = resultText.match(/\{[\s\S]*\}/);
+    if (!match) {
+      throw new Error("Invalid response format from Vision AI");
+    }
+    
+    const parsed = JSON.parse(match[0]);
+    return res.json(parsed);
+  } catch (error) {
+    console.error("AI Image Controller Error:", error);
+    res.status(500).json({ message: "Error analyzing image" });
+  }
+};
+
+export default { getAnalysis, analyzeImageController };

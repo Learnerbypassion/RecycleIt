@@ -17,7 +17,8 @@ const createPickup = async (req, res) => {
       return res.status(404).json({ message: "Collector not found" });
     }
 
-    if (!collector.acceptedTypes.includes(waste.type)) {
+    const acceptedTypesLower = collector.acceptedTypes.map(t => t.toLowerCase());
+    if (!acceptedTypesLower.includes((waste.type || "").toLowerCase())) {
       return res.status(400).json({
         message: "Collector does not accept this waste type",
       });
@@ -136,9 +137,23 @@ const getPickupById = async (req, res) => {
   }
 };
 
+const getPickupsByCollector = async (req, res) => {
+  try {
+    const pickups = await Pickup.find({ collector: req.params.id })
+      .populate("collector")
+      .populate("waste")
+      .sort({ createdAt: -1 });
+
+    res.json(pickups);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export default {
   createPickup,
   updatePickupStatus,
   getAllPickups,
+  getPickupsByCollector,
   getPickupById,
 };
