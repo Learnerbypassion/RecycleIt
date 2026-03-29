@@ -1,11 +1,9 @@
 import Waste from "../models/waste.model.js";
 import Collector from "../models/collector.model.js";
-<<<<<<< HEAD
 import storageService from "../services/storage.service.js";
 
-=======
 import { uploadProfilePic } from "../services/stoorage.service.js";
->>>>>>> 56a0e84724010f7b69618d43b34f15ea89e97823
+
 
 const addWaste = async (req, res) => {
   try {
@@ -157,7 +155,6 @@ const updateWasteStatus = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
 const uploadImageController = async (req, res) => {
   try {
     const { wasteId } = req.params;
@@ -194,7 +191,6 @@ const uploadImageController = async (req, res) => {
 };
 
 
-=======
 const getWasteByUser = async (req, res) => {
   try {
     const { email } = req.params;
@@ -208,15 +204,11 @@ const getWasteByUser = async (req, res) => {
   }
 };
 
->>>>>>> 56a0e84724010f7b69618d43b34f15ea89e97823
 export default {
   addWaste,
   getAllWaste,
   getWasteById,
   updateWasteStatus,
-<<<<<<< HEAD
-  uploadImageController
-=======
+  uploadImageController,
   getWasteByUser,
->>>>>>> 56a0e84724010f7b69618d43b34f15ea89e97823
 };
