@@ -18,15 +18,14 @@ const wasteSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: [
-        "plastic",// food waste
-        "organic",// crop waste
-        "metal",//garden waste
-        "glass",//plastic waste
-        "electronic",// Electronic waste
-        "hazardous",// Glass waste
-        "paper",// Hazardous waste
-        "Metal waste"//Metal waste
-        // cattle waste
+        "plastic",
+        "organic",
+        "metal",
+        "glass",
+        "electronic",
+        "hazardous",
+        "paper",
+        "Metal waste"
       ],
     },
     
@@ -56,9 +55,15 @@ const wasteSchema = new mongoose.Schema(
       type: String,
     },
 
+    collector: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Collector",
+      default: null,
+    },
+
     status: {
       type: String,
-      enum: ["reported", "assigned", "cleared"], // pending, assinged, completed
+      enum: ["reported", "assigned", "cleared"],
       default: "reported",
     },
   },

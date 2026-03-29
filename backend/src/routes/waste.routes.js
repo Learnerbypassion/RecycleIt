@@ -11,7 +11,8 @@ const upload = multer({
 router.post('/add', wasteController.addWaste );
 router.get('/all', wasteController.getAllWaste);
 router.put('/:wasteId/uplaod-image', upload.single("image"), wasteController.uploadImageController)
+router.get('/user/:email', wasteController.getWasteByUser);
 router.get('/:id', wasteController.getWasteById);
-router.put('/:id', wasteController.updateWasteStatus)
+router.put('/:id', wasteController.updateWasteStatus);
 
 export default router;
